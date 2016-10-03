@@ -30,6 +30,8 @@ class ImageResizer {
 
         return new Promise((resolve, reject) => {
             var img = gm(image.data).geometry(this.options.size.toString());
+            var fileName = image.fileName;
+
             if ( "gravity" in this.options ) {
                 img = img.gravity(this.options.gravity);
             }
@@ -46,12 +48,18 @@ class ImageResizer {
                 img = img.crop(cropWidth, cropHeight, cropX, cropY, cropPercent === "%");
             }
 
+            if ( "suffix" in this.options ) {
+                fileName = fileName.substr(0, fileName.lastIndexOf("."))
+                    + this.options.suffix
+                    + fileName.substr(fileName.lastIndexOf("."));
+            }
+
             function toBufferHandler(err, buffer) {
                 if (err) {
                     reject(err);
                 } else {
                     resolve(new ImageData(
-                        image.fileName,
+                        fileName,
                         image.bucketName,
                         buffer,
                         image.headers,
